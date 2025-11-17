@@ -68,7 +68,7 @@
       margin-top: 8px;
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 4px;
     }
 
     .name {
@@ -77,9 +77,10 @@
       color: #e5e7eb;
     }
 
-    .stats {
+    .stats, .url {
       font-size: 0.8rem;
       color: #9ca3af;
+      word-break: break-all;
     }
 
     .status {
@@ -136,7 +137,7 @@
     const grid = document.getElementById("streamsGrid");
     const hlsInstances = {};
 
-    // Build UI
+    // Build UI cards
     streams.forEach((s) => {
       const card = document.createElement("div");
       card.className = "card";
@@ -148,6 +149,7 @@
         <div class="info">
           <div class="name">${s.name}</div>
           <div class="stats" id="stats-${s.id}">Resolution: –</div>
+          <div class="url"><strong>Stream URL:</strong> ${s.url}</div>
           <div class="status" id="status-${s.id}"></div>
         </div>
       `;
@@ -156,7 +158,7 @@
 
       const video = card.querySelector("video");
 
-      // Fullscreen on double-click
+      // Double-click to fullscreen
       video.addEventListener("dblclick", () => {
         if (!document.fullscreenElement) {
           video.requestFullscreen?.();
@@ -184,45 +186,40 @@
       }
 
       if (video.canPlayType("application/vnd.apple.mpegurl")) {
-        // Native HLS (Safari, etc.)
+        // Native HLS
         video.src = stream.url;
         video.addEventListener("loadedmetadata", () => {
-          video.play().catch(() => {
-            statusEl.textContent = "Autoplay blocked – press play.";
-          });
+          video.play().catch(() => statusEl.textContent = "Autoplay blocked – press play.");
           updateResolution(video, statsEl);
         });
+
       } else if (window.Hls && Hls.isSupported()) {
         const hls = new Hls({ lowLatencyMode: true });
         hlsInstances[stream.id] = hls;
+
         hls.loadSource(stream.url);
         hls.attachMedia(video);
 
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          video.play().catch(() => {
-            statusEl.textContent = "Autoplay blocked – press play.";
-          });
+          video.play().catch(() => statusEl.textContent = "Autoplay blocked – press play.");
         });
 
-        hls.on(Hls.Events.LEVEL_SWITCHED, () => updateResolution(video, statsEl));
         hls.on(Hls.Events.FRAG_LOADED, () => updateResolution(video, statsEl));
+        hls.on(Hls.Events.LEVEL_SWITCHED, () => updateResolution(video, statsEl));
 
         hls.on(Hls.Events.ERROR, (event, data) => {
           if (data.fatal) {
             statusEl.textContent = "Stream error – recovering...";
             switch (data.type) {
-              case Hls.ErrorTypes.NETWORK_ERROR:
-                hls.startLoad();
-                break;
-              case Hls.ErrorTypes.MEDIA_ERROR:
-                hls.recoverMediaError();
-                break;
+              case Hls.ErrorTypes.NETWORK_ERROR: hls.startLoad(); break;
+              case Hls.ErrorTypes.MEDIA_ERROR: hls.recoverMediaError(); break;
               default:
                 statusEl.textContent = "Fatal error – reload page.";
                 hls.destroy();
             }
           }
         });
+
       } else {
         statusEl.textContent = "HLS not supported in this browser.";
       }
@@ -234,7 +231,7 @@
 
     document.getElementById("startAll").addEventListener("click", startAll);
 
-    // Start once on load
+    // Start all streams on load
     startAll();
   </script>
 </body>
