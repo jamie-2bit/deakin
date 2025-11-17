@@ -39,7 +39,7 @@
     .card {
       background: #020617;
       border-radius: 12px;
-      padding: 12px;
+      padding: 10px;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
       display: flex;
       flex-direction: column;
@@ -65,21 +65,21 @@
     }
 
     .info {
-      margin-top: 10px;
+      margin-top: 8px;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 2px;
     }
 
     .name {
-      font-size: 1rem;
+      font-size: 0.95rem;
       font-weight: 600;
+      color: #e5e7eb;
     }
 
-    .stats, .url {
-      font-size: 0.75rem;
+    .stats {
+      font-size: 0.8rem;
       color: #9ca3af;
-      word-break: break-all;
     }
 
     .status {
@@ -89,6 +89,10 @@
 
     .controls {
       margin: 0 0 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
     }
 
     button {
@@ -108,9 +112,9 @@
   </style>
 </head>
 <body>
-  <h1>JD's Deakin News Multiview</h1>
+  <h1>JD's Live Deakin News Multiview</h1>
   <div class="subtitle">
-    All streams are muted by default for autoplay. Click the button if any stream doesn't begin playing.
+    All streams are muted by default (for autoplay).
   </div>
 
   <div class="controls">
@@ -144,7 +148,6 @@
         <div class="info">
           <div class="name">${s.name}</div>
           <div class="stats" id="stats-${s.id}">Resolution: –</div>
-          <div class="url">${s.url}</div>
           <div class="status" id="status-${s.id}"></div>
         </div>
       `;
@@ -181,39 +184,58 @@
       }
 
       if (video.canPlayType("application/vnd.apple.mpegurl")) {
-        // Native HLS (Safari)
+        // Native HLS (Safari, etc.)
         video.src = stream.url;
         video.addEventListener("loadedmetadata", () => {
           video.play().catch(() => {
-            statusEl.textContent = "Autoplay blocked — press play.";
+            statusEl.textContent = "Autoplay blocked – press play.";
           });
           updateResolution(video, statsEl);
         });
-
       } else if (window.Hls && Hls.isSupported()) {
-        // hls.js
         const hls = new Hls({ lowLatencyMode: true });
         hlsInstances[stream.id] = hls;
-
         hls.loadSource(stream.url);
         hls.attachMedia(video);
 
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
           video.play().catch(() => {
-            statusEl.textContent = "Autoplay blocked — press play.";
+            statusEl.textContent = "Autoplay blocked – press play.";
           });
         });
 
-        hls.on(Hls.Events.FRAG_LOADED, () => updateResolution(video, statsEl));
         hls.on(Hls.Events.LEVEL_SWITCHED, () => updateResolution(video, statsEl));
+        hls.on(Hls.Events.FRAG_LOADED, () => updateResolution(video, statsEl));
 
         hls.on(Hls.Events.ERROR, (event, data) => {
           if (data.fatal) {
-            statusEl.textContent = "Stream error — recovering...";
+            statusEl.textContent = "Stream error – recovering...";
             switch (data.type) {
-              case Hls.ErrorTypes.NETWORK_ERROR: hls.startLoad(); break;
-              case Hls.ErrorTypes.MEDIA_ERROR:   hls.recoverMediaError(); break;
+              case Hls.ErrorTypes.NETWORK_ERROR:
+                hls.startLoad();
+                break;
+              case Hls.ErrorTypes.MEDIA_ERROR:
+                hls.recoverMediaError();
+                break;
               default:
+                statusEl.textContent = "Fatal error – reload page.";
                 hls.destroy();
-                statusEl.textContent = "Fatal error — reload page.";
             }
+          }
+        });
+      } else {
+        statusEl.textContent = "HLS not supported in this browser.";
+      }
+    }
+
+    function startAll() {
+      streams.forEach((s) => initStream(s));
+    }
+
+    document.getElementById("startAll").addEventListener("click", startAll);
+
+    // Start once on load
+    startAll();
+  </script>
+</body>
+</html>
