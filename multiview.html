@@ -13,86 +13,29 @@
 
     body {
       margin: 0;
-      padding: 16px;
+      padding: 10px;
+      height: 100vh;
       box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
 
     h1 {
-      margin: 0 0 12px;
-      font-size: 1.4rem;
+      margin: 0;
+      font-size: 1.3rem;
       font-weight: 600;
       color: #f9fafb;
     }
 
     .subtitle {
-      margin-bottom: 16px;
-      font-size: 0.85rem;
-      color: #9ca3af;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 16px;
-    }
-
-    .card {
-      background: #020617;
-      border-radius: 12px;
-      padding: 10px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
-      display: flex;
-      flex-direction: column;
-    }
-
-    .video-wrapper {
-      position: relative;
-      width: 100%;
-      padding-top: 56.25%; /* 16:9 */
-      border-radius: 8px;
-      overflow: hidden;
-      background: #111827;
-    }
-
-    video {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      background: black;
-    }
-
-    .info {
-      margin-top: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .name {
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: #e5e7eb;
-    }
-
-    .stats {
       font-size: 0.8rem;
       color: #9ca3af;
-    }
-
-    .status {
-      font-size: 0.75rem;
-      color: #f97373;
+      margin-bottom: 4px;
     }
 
     .controls {
-      margin: 0 0 12px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
+      margin-bottom: 4px;
     }
 
     button {
@@ -104,18 +47,86 @@
       color: #e5e7eb;
       cursor: pointer;
     }
-
     button:hover {
       border-color: #6b7280;
       background: #020617;
     }
+
+    /* Fullscreen responsive grid */
+    .grid {
+      flex: 1 1 auto;
+      display: grid;
+      gap: 10px;
+      width: 100%;
+      height: 100%;
+
+      /* auto-fit into as many rows/columns as needed */
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-auto-rows: 1fr;
+    }
+
+    .card {
+      background: #020617;
+      border-radius: 12px;
+      padding: 8px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-height: 0; /* important for flex/grid children */
+    }
+
+    .video-wrapper {
+      flex: 1 1 auto;
+      width: 100%;
+      background: black;
+      border-radius: 8px;
+      overflow: hidden;
+
+      /* Maintain 16:9 ratio but allow expansion */
+      aspect-ratio: 16 / 9;
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      background: black;
+    }
+
+    .info {
+      margin-top: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 0.75rem;
+    }
+
+    .name {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .url {
+      color: #9ca3af;
+      word-break: break-all;
+      font-size: 0.7rem;
+    }
+
+    .stats {
+      color: #9ca3af;
+    }
+
+    .status {
+      font-size: 0.75rem;
+      color: #f97373;
+    }
+
   </style>
 </head>
 <body>
   <h1>JD's Deakin News Multiview</h1>
-  <div class="subtitle">
-    All streams are muted by default (for autoplay).
-  </div>
+  <div class="subtitle">All streams muted by default for autoplay.</div>
 
   <div class="controls">
     <button id="startAll">Start / Restart All Streams</button>
@@ -148,6 +159,7 @@
         <div class="info">
           <div class="name">${s.name}</div>
           <div class="stats" id="stats-${s.id}">Resolution: –</div>
+          <div class="url">${s.url}</div>
           <div class="status" id="status-${s.id}"></div>
         </div>
       `;
@@ -156,13 +168,10 @@
 
       const video = card.querySelector("video");
 
-      // Fullscreen on double-click
+      // Double-click fullscreen
       video.addEventListener("dblclick", () => {
-        if (!document.fullscreenElement) {
-          video.requestFullscreen?.();
-        } else {
-          document.exitFullscreen?.();
-        }
+        if (!document.fullscreenElement) video.requestFullscreen?.();
+        else document.exitFullscreen?.();
       });
     });
 
@@ -183,46 +192,46 @@
         hlsInstances[stream.id].destroy();
       }
 
+      // Native HLS support
       if (video.canPlayType("application/vnd.apple.mpegurl")) {
-        // Native HLS (Safari, etc.)
         video.src = stream.url;
         video.addEventListener("loadedmetadata", () => {
           video.play().catch(() => {
-            statusEl.textContent = "Autoplay blocked – press play.";
+            statusEl.textContent = "Autoplay blocked — press play.";
           });
           updateResolution(video, statsEl);
         });
+
+      // hls.js fallback
       } else if (window.Hls && Hls.isSupported()) {
         const hls = new Hls({ lowLatencyMode: true });
         hlsInstances[stream.id] = hls;
+
         hls.loadSource(stream.url);
         hls.attachMedia(video);
 
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
           video.play().catch(() => {
-            statusEl.textContent = "Autoplay blocked – press play.";
+            statusEl.textContent = "Autoplay blocked — press play.";
           });
         });
 
-        hls.on(Hls.Events.LEVEL_SWITCHED, () => updateResolution(video, statsEl));
         hls.on(Hls.Events.FRAG_LOADED, () => updateResolution(video, statsEl));
+        hls.on(Hls.Events.LEVEL_SWITCHED, () => updateResolution(video, statsEl));
 
         hls.on(Hls.Events.ERROR, (event, data) => {
           if (data.fatal) {
-            statusEl.textContent = "Stream error – recovering...";
+            statusEl.textContent = "Stream error — recovering...";
             switch (data.type) {
-              case Hls.ErrorTypes.NETWORK_ERROR:
-                hls.startLoad();
-                break;
-              case Hls.ErrorTypes.MEDIA_ERROR:
-                hls.recoverMediaError();
-                break;
+              case Hls.ErrorTypes.NETWORK_ERROR: hls.startLoad(); break;
+              case Hls.ErrorTypes.MEDIA_ERROR:   hls.recoverMediaError(); break;
               default:
-                statusEl.textContent = "Fatal error – reload page.";
                 hls.destroy();
+                statusEl.textContent = "Fatal error — reload page.";
             }
           }
         });
+
       } else {
         statusEl.textContent = "HLS not supported in this browser.";
       }
