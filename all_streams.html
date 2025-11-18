@@ -229,3 +229,32 @@
         hls.on(Hls.Events.ERROR, (event, data) => {
           if (data.fatal) {
             statusEl.textContent = "Stream error – recovering...";
+            switch (data.type) {
+              case Hls.ErrorTypes.NETWORK_ERROR:
+                hls.startLoad();
+                break;
+              case Hls.ErrorTypes.MEDIA_ERROR:
+                hls.recoverMediaError();
+                break;
+              default:
+                statusEl.textContent = "Fatal error – reload page.";
+                hls.destroy();
+            }
+          }
+        });
+      } else {
+        statusEl.textContent = "HLS not supported in this browser.";
+      }
+    }
+
+    function startAll() {
+      streams.forEach((s) => initStream(s));
+    }
+
+    document.getElementById("startAll").addEventListener("click", startAll);
+
+    // Start once on load
+    startAll();
+  </script>
+</body>
+</html>
