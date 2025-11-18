@@ -77,8 +77,7 @@
       color: #e5e7eb;
     }
 
-    .stats,
-    .url {
+    .stats, .url {
       font-size: 0.8rem;
       color: #9ca3af;
       word-break: break-all;
@@ -115,9 +114,7 @@
 </head>
 <body>
   <h1>JD's Massive News Multiview.</h1>
-  <div class="subtitle">
-    All streams are muted by default (for autoplay).
-  </div>
+  <div class="subtitle">All streams are muted by default (for autoplay).</div>
 
   <div class="controls">
     <button id="startAll">Start / Restart All Streams</button>
@@ -127,41 +124,36 @@
 
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script>
+
     const streams = [
-      // --- 5 original ---
+      // --- 5 originals ---
       { id: "dw",     name: "DW",                     url: "https://dwamdstream102.akamaized.net/hls/live/2015525/dwstream102/index.m3u8" },
       { id: "abcau",  name: "ABC News Australia",     url: "https://abc-news-dmd-streams-1.akamaized.net/out/v1/701126012d044971b3fa89406a440133/index.m3u8" },
       { id: "alj",    name: "Al Jazeera",             url: "https://live-hls-web-aje.getaj.net/AJE/index.m3u8" },
       { id: "cna",    name: "CNA",                    url: "https://d2e1asnsl7br7b.cloudfront.net/7782e205e72f43aeb4a48ec97f66ebbe/index_5.m3u8" },
       { id: "sky",    name: "Sky News International", url: "https://linear417-gb-hls1-prd-ak.cdn.skycdp.com/100e/Content/HLS_001_1080_30/Live/channel(skynews)/index_1080-30.m3u8" },
 
-      // --- 3 you confirmed working earlier ---
+      // --- 3 previously confirmed working ---
       { id: "nhk",    name: "NHK World Japan",        url: "https://media-tyo.hls.nhkworld.jp/hls/w/live/master.m3u8" },
       { id: "abcus",  name: "ABC News Live (US)",     url: "https://abcnews-streams.akamaized.net/hls/live/2023565/abcnewshudson6/master_4000.m3u8" },
       { id: "bloom",  name: "Bloomberg Europe",       url: "https://www.bloomberg.com/media-manifest/streams/eu.m3u8" },
 
-      // --- CGTN that you confirmed works ---
+      // --- CGTN you confirmed working ---
       { id: "cgtndoc", name: "CGTN Documentary",      url: "https://english-livebkali.cgtn.com/live/doccgtn.m3u8" },
 
-      // --- 6 NEW candidate news streams to try (replacing the 6 that failed) ---
-
-      // Newsmax (US)
-      { id: "newsmax", name: "Newsmax TV",            url: "https://nmxlive.akamaized.net/hls/live/529965/Live_1/index_1080.m3u8" },
-
-      // NDTV 24x7 (India)
-      { id: "ndtv24x7", name: "NDTV 24x7",            url: "https://ndtv24x7elemarchana.akamaized.net/hls/live/2003678/ndtv24x7/ndtv24x7master.m3u8" },
-
-      // India Today (India)
-      { id: "indiatoday", name: "India Today",        url: "https://indiatodaylive.akamaized.net/hls/live/2014320/indiatoday/indiatodaylive/playlist.m3u8" },
-
-      // TVRI World (Indonesia's international service)
+      // --- TVRI you confirmed working ---
       { id: "tvriworld", name: "TVRI World",          url: "https://ott-balancer.tvri.go.id/live/eds/TVRIWorld/hls/TVRIWorld.m3u8" },
 
-      // NASA TV (US – not pure news, but constant live programming)
-      { id: "nasatv", name: "NASA TV Public",         url: "https://nasa-i.akamaihd.net/hls/live/253565/NASA-NTV1-Public/master.m3u8" },
+      // --- 5 new test streams ---
+      { id: "presstv", name: "Press TV",              url: "https://press-tv.live/stream/ptv_e_hls.m3u8" },
 
-      // NewsNet (US)
-      { id: "newsnet", name: "NewsNet",               url: "https://bozztv.com/36bay2/gin-newsnet/index.m3u8" }
+      { id: "dwes",    name: "DW Español",            url: "https://dwstream3-lh.akamaihd.net/i/dwstream3_live@327065/index_1_av-p.m3u8" },
+
+      { id: "pptv",    name: "PPTV News Thailand",    url: "https://stream1.pptvthailand.com/live/pptvhd.m3u8" },
+
+      { id: "c24h",    name: "Canal 24 Horas (Chile)", url: "https://cdn-canal24horas-tv.canal24horas.cl/hls/live/master.m3u8" },
+
+      { id: "nhkbs1",  name: "NHK BS1 (Alt Feed)",    url: "https://media-nhk.bcast.jp/hls/live/2092239/bs1_720p/master.m3u8" }
     ];
 
     const grid = document.getElementById("streamsGrid");
@@ -187,14 +179,9 @@
       grid.appendChild(card);
 
       const video = card.querySelector("video");
-
-      // Fullscreen on double-click
       video.addEventListener("dblclick", () => {
-        if (!document.fullscreenElement) {
-          video.requestFullscreen?.();
-        } else {
-          document.exitFullscreen?.();
-        }
+        if (!document.fullscreenElement) video.requestFullscreen();
+        else document.exitFullscreen();
       });
     });
 
@@ -211,31 +198,24 @@
 
       statusEl.textContent = "";
 
-      if (hlsInstances[stream.id]) {
-        hlsInstances[stream.id].destroy();
-      }
+      if (hlsInstances[stream.id]) hlsInstances[stream.id].destroy();
 
       if (video.canPlayType("application/vnd.apple.mpegurl")) {
-        // Native HLS (Safari, etc.)
         video.src = stream.url;
         video.addEventListener("loadedmetadata", () => {
-          video.play().catch(() => {
-            statusEl.textContent = "Autoplay blocked – press play.";
-          });
+          video.play().catch(() => statusEl.textContent = "Autoplay blocked – press play.");
           updateResolution(video, statsEl);
         });
 
       } else if (window.Hls && Hls.isSupported()) {
-        // hls.js
         const hls = new Hls({ lowLatencyMode: true });
         hlsInstances[stream.id] = hls;
+
         hls.loadSource(stream.url);
         hls.attachMedia(video);
 
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          video.play().catch(() => {
-            statusEl.textContent = "Autoplay blocked – press play.";
-          });
+          video.play().catch(() => statusEl.textContent = "Autoplay blocked – press play.");
         });
 
         hls.on(Hls.Events.FRAG_LOADED, () => updateResolution(video, statsEl));
@@ -244,21 +224,17 @@
         hls.on(Hls.Events.ERROR, (event, data) => {
           if (data.fatal) {
             statusEl.textContent = "Stream error – recovering...";
-            switch (data.type) {
-              case Hls.ErrorTypes.NETWORK_ERROR:
-                hls.startLoad();
-                break;
-              case Hls.ErrorTypes.MEDIA_ERROR:
-                hls.recoverMediaError();
-                break;
-              default:
-                statusEl.textContent = "Fatal error – reload page.";
-                hls.destroy();
+            if (data.type === Hls.ErrorTypes.NETWORK_ERROR) hls.startLoad();
+            else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) hls.recoverMediaError();
+            else {
+              statusEl.textContent = "Fatal error – reload page.";
+              hls.destroy();
             }
           }
         });
+
       } else {
-        statusEl.textContent = "HLS not supported in this browser.";
+        statusEl.textContent = "HLS not supported by this browser.";
       }
     }
 
@@ -267,9 +243,7 @@
     }
 
     document.getElementById("startAll").addEventListener("click", startAll);
-
-    // Start once on load
-    startAll();
+    startAll(); // auto-start
   </script>
 </body>
 </html>
