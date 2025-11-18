@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>JD's 15 Deakin Multiview</title>
+  <title>JD's Live Deakin News Multiview</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     :root {
@@ -68,7 +68,7 @@
       margin-top: 8px;
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 4px;
     }
 
     .name {
@@ -77,9 +77,10 @@
       color: #e5e7eb;
     }
 
-    .stats {
+    .stats, .url {
       font-size: 0.8rem;
       color: #9ca3af;
+      word-break: break-all;
     }
 
     .status {
@@ -112,7 +113,7 @@
   </style>
 </head>
 <body>
-  <h1>JD's 15 Deakin Multiview</h1>
+  <h1>JD's Live Deakin News Multiview</h1>
   <div class="subtitle">
     All streams are muted by default (for autoplay).
   </div>
@@ -127,42 +128,20 @@
   <script>
     const streams = [
       // Original 5
-      { id: "dw",  name: "DW",                 url: "https://dwamdstream102.akamaized.net/hls/live/2015525/dwstream102/index.m3u8" },
-      { id: "abc", name: "ABC News Australia", url: "https://abc-news-dmd-streams-1.akamaized.net/out/v1/701126012d044971b3fa89406a440133/index.m3u8" },
-      { id: "aljazeera", name: "Al Jazeera",   url: "https://live-hls-web-aje.getaj.net/AJE/index.m3u8" },
-      { id: "cna", name: "CNA",                url: "https://d2e1asnsl7br7b.cloudfront.net/7782e205e72f43aeb4a48ec97f66ebbe/index_5.m3u8" },
-      { id: "sky", name: "Sky News International", url: "https://linear417-gb-hls1-prd-ak.cdn.skycdp.com/100e/Content/HLS_001_1080_30/Live/channel(skynews)/index_1080-30.m3u8" },
+      { id: "dw",   name: "DW",                     url: "https://dwamdstream102.akamaized.net/hls/live/2015525/dwstream102/index.m3u8" },
+      { id: "abcau",name: "ABC News Australia",     url: "https://abc-news-dmd-streams-1.akamaized.net/out/v1/701126012d044971b3fa89406a440133/index.m3u8" },
+      { id: "alj",  name: "Al Jazeera",             url: "https://live-hls-web-aje.getaj.net/AJE/index.m3u8" },
+      { id: "cna",  name: "CNA",                    url: "https://d2e1asnsl7br7b.cloudfront.net/7782e205e72f43aeb4a48ec97f66ebbe/index_5.m3u8" },
+      { id: "sky",  name: "Sky News International", url: "https://linear417-gb-hls1-prd-ak.cdn.skycdp.com/100e/Content/HLS_001_1080_30/Live/channel(skynews)/index_1080-30.m3u8" },
 
-      // +10 additional streams
-      { id: "france24",  name: "France 24 English", 
-        url: "https://uvotv-aniview.global.ssl.fastly.net/hls/live/2120684/france24english/playlist.m3u8" },
-
-      { id: "euronews",  name: "Euronews English", 
-        url: "https://euronews.alteox.app/hls/en_stream.m3u8" },
-
-      { id: "nhk",       name: "NHK World-Japan", 
-        url: "https://media-tyo.hls.nhkworld.jp/hls/w/live/master.m3u8" },
-
-      { id: "abcliveus", name: "ABC News Live (US)", 
-        url: "https://abcnews-streams.akamaized.net/hls/live/2023565/abcnewshudson6/master_4000.m3u8" },
-
-      { id: "trt",       name: "TRT World", 
-        url: "https://tv-trtworld.live.trt.com.tr/master_1080.m3u8" },
-
-      { id: "arirang",   name: "Arirang TV", 
-        url: "https://amdlive-ch01-ctnd-com.akamaized.net/arirang_1ch/smil:arirang_1ch.smil/playlist.m3u8" },
-
-      { id: "dwalt",     name: "DW News (alt feed)", 
-        url: "https://dwstream4-lh.akamaihd.net/i/dwstream4_live@131329/index_1_av-p.m3u8" },
-
-      { id: "cbsnews",   name: "CBS News (US)", 
-        url: "https://cbsn-us-cedexis.cbsnstream.cbsnews.com/out/v1/55a8648e8f134e82a470f83d562deeca/master.m3u8" },
-
-      { id: "bloombergeu", name: "Bloomberg Europe", 
-        url: "https://www.bloomberg.com/media-manifest/streams/eu.m3u8" },
-
-      { id: "cgtndoc",   name: "CGTN Documentary", 
-        url: "https://livedoc.cgtn.com/1000d/prog_index.m3u8" }
+      // 7 new candidate streams – may be geo/CORS restricted or blocked by https/mixed content
+      { id: "bbc",    name: "BBC News",              url: "https://bbc.stream/static/hls/live/bbcnews/index.m3u8" },
+      { id: "cnbc",   name: "CNBC World",            url: "https://cnbc.streams.akamaihd.net/hls/live/224/3221227005/03.m3u8" },
+      { id: "news24", name: "News24 South Africa",   url: "https://news24.stream/live/hls/news24.m3u8" },
+      { id: "rt",     name: "RT International",      url: "https://rt.stream/secure/1105.m3u8" },
+      { id: "trt2",   name: "TRT World 2",           url: "http://trtcanlitv-lh.akamaihd.net/i/TRTWORLD_1@321783/master.m3u8" },
+      { id: "i24",    name: "i24 News",              url: "https://i24alive1-a.akamaihd.net/6e3dd61ac4c34d6f8fb9698b565b9f50/eu-central-1/5377161796001/profile_0/chunklist_dvr.m3u8" },
+      { id: "cnnint", name: "CNN International",     url: "http://ott-cdn.ucom.am/s27/index.m3u8" }
     ];
 
     const grid = document.getElementById("streamsGrid");
@@ -180,6 +159,7 @@
         <div class="info">
           <div class="name">${s.name}</div>
           <div class="stats" id="stats-${s.id}">Resolution: –</div>
+          <div class="url"><strong>Stream URL:</strong> ${s.url}</div>
           <div class="status" id="status-${s.id}"></div>
         </div>
       `;
@@ -205,8 +185,8 @@
     }
 
     function initStream(stream) {
-      const video = document.getElementById(`video-${stream.id}`);
-      const statsEl = document.getElementById(`stats-${stream.id}`);
+      const video    = document.getElementById(`video-${stream.id}`);
+      const statsEl  = document.getElementById(`stats-${stream.id}`);
       const statusEl = document.getElementById(`status-${stream.id}`);
 
       statusEl.textContent = "";
@@ -216,7 +196,7 @@
       }
 
       if (video.canPlayType("application/vnd.apple.mpegurl")) {
-        // Native HLS (Safari, etc.)
+        // Native HLS (Safari, some smart TVs)
         video.src = stream.url;
         video.addEventListener("loadedmetadata", () => {
           video.play().catch(() => {
@@ -226,6 +206,7 @@
         });
 
       } else if (window.Hls && Hls.isSupported()) {
+        // hls.js
         const hls = new Hls({ lowLatencyMode: true });
         hlsInstances[stream.id] = hls;
         hls.loadSource(stream.url);
@@ -237,8 +218,8 @@
           });
         });
 
-        hls.on(Hls.Events.LEVEL_SWITCHED, () => updateResolution(video, statsEl));
         hls.on(Hls.Events.FRAG_LOADED, () => updateResolution(video, statsEl));
+        hls.on(Hls.Events.LEVEL_SWITCHED, () => updateResolution(video, statsEl));
 
         hls.on(Hls.Events.ERROR, (event, data) => {
           if (data.fatal) {
