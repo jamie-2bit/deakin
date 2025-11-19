@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>JD's Massive News Multiview.</title>
+  <title>JD's 5-Stream News Multiview</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     :root {
@@ -14,7 +14,6 @@
     body {
       margin: 0;
       padding: 16px;
-      box-sizing: border-box;
     }
 
     h1 {
@@ -24,15 +23,9 @@
       color: #f9fafb;
     }
 
-    .subtitle {
-      margin-bottom: 16px;
-      font-size: 0.85rem;
-      color: #9ca3af;
-    }
-
     .grid {
       display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr)); /* 5 wide */
+      grid-template-columns: repeat(5, 1fr);
       gap: 16px;
     }
 
@@ -48,7 +41,7 @@
     .video-wrapper {
       position: relative;
       width: 100%;
-      padding-top: 56.25%;
+      padding-top: 56.25%; /* 16:9 */
       border-radius: 8px;
       overflow: hidden;
       background: #111827;
@@ -97,19 +90,14 @@
       cursor: pointer;
     }
 
-    button:hover {
-      border-color: #6b7280;
-      background: #020617;
-    }
-
     .controls {
       margin-bottom: 12px;
     }
   </style>
 </head>
+
 <body>
-  <h1>JD's Massive News Multiview.</h1>
-  <div class="subtitle">All streams are muted by default for autoplay.</div>
+  <h1>JD's 5-Stream News Multiview</h1>
 
   <div class="controls">
     <button id="startAll">Start / Restart All Streams</button>
@@ -121,146 +109,5 @@
   <script>
 
     const streams = [
-
-      /* ---------- EUROPE ---------- */
-      { id: "dw", name: "DW (Germany)",
-        url: "https://dwamdstream102.akamaized.net/hls/live/2015525/dwstream102/index.m3u8" },
-
-      { id: "bbc", name: "BBC World News (UK)",
-        url: "https://vs-hls-pushb-apac-gcomm.live.cf.md.bbci.co.uk/x=4/i=urn:bbc:pips:service:bbc_world_news_africa/iptv_hd_abr_v1.m3u8" },
-
-      { id: "sky", name: "Sky News International (UK)",
-        url: "https://linear417-gb-hls1-prd-ak.cdn.skycdp.com/100e/Content/HLS_001_1080_30/Live/channel(skynews)/index_1080-30.m3u8" },
-
-      { id: "bloom", name: "Bloomberg Europe",
-        url: "https://www.bloomberg.com/media-manifest/streams/eu.m3u8" },
-
-
-      /* ---------- MIDDLE EAST ---------- */
-      { id: "alj", name: "Al Jazeera English (Qatar)",
-        url: "https://live-hls-web-aje.getaj.net/AJE/index.m3u8" },
-
-      { id: "aja_ar", name: "Al Jazeera Arabic (Qatar)",
-        url: "https://live-hls-web-aja.getaj.net/AJA/index.m3u8" },
-
-      { id: "jrtv", name: "Jordan Live (JRTV HD)",
-        url: "https://jrtv-live.ercdn.net/jordanhd/jordanhd_1080p.m3u8" },
-
-
-      /* ---------- ASIA-PACIFIC ---------- */
-      { id: "nhk", name: "NHK World Japan",
-        url: "https://media-tyo.hls.nhkworld.jp/hls/w/live/master.m3u8" },
-
-      { id: "cna", name: "CNA (Singapore)",
-        url: "https://d2e1asnsl7br7b.cloudfront.net/7782e205e72f43aeb4a48ec97f66ebbe/index_5.m3u8" },
-
-      { id: "tvriworld", name: "TVRI World (Indonesia)",
-        url: "https://ott-balancer.tvri.go.id/live/eds/TVRIWorld/hls/TVRIWorld.m3u8" },
-
-
-      /* ---------- AUSTRALIA / US ---------- */
-      { id: "abcau", name: "ABC News Australia",
-        url: "https://abc-news-dmd-streams-1.akamaized.net/out/v1/701126012d044971b3fa89406a440133/index.m3u8" },
-
-      { id: "abcus", name: "ABC News Live (US)",
-        url: "https://abcnews-streams.akamaized.net/hls/live/2023565/abcnewshudson6/master_4000.m3u8" },
-
-
-      /* ---------- CHINA ---------- */
-      { id: "cgtndoc", name: "CGTN Documentary",
-        url: "https://english-livebkali.cgtn.com/live/doccgtn.m3u8" },
-
-
-      /* ---------- TEST STREAMS ---------- */
-      { id: "bbb", name: "Test: Big Buck Bunny",
-        url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" },
-
-      { id: "tosvod", name: "Test: Tears of Steel (VOD)",
-        url: "https://test-streams.mux.dev/tos_ismc/main.m3u8" }
-    ];
-
-    /* ---------- UI BUILD ---------- */
-    const grid = document.getElementById("streamsGrid");
-    const hlsInstances = {};
-
-    streams.forEach((s) => {
-      const card = document.createElement("div");
-      card.className = "card";
-      card.innerHTML = `
-        <div class="video-wrapper">
-          <video id="video-${s.id}" muted playsinline autoplay controls></video>
-        </div>
-        <div class="info">
-          <div class="name">${s.name}</div>
-          <div class="stats" id="stats-${s.id}">Resolution: –</div>
-          <div class="url"><strong>Stream URL:</strong> ${s.url}</div>
-          <div class="status" id="status-${s.id}"></div>
-        </div>`;
-      grid.appendChild(card);
-
-      const video = card.querySelector("video");
-      video.addEventListener("dblclick", () => {
-        if (!document.fullscreenElement) video.requestFullscreen();
-        else document.exitFullscreen();
-      });
-    });
-
-    /* ---------- STREAM HANDLING ---------- */
-    function updateResolution(video, el) {
-      const w = video.videoWidth, h = video.videoHeight;
-      el.textContent = (w && h) ? `Resolution: ${w}×${h}` : "Resolution: –";
-    }
-
-    function initStream(stream) {
-      const video = document.getElementById(`video-${stream.id}`);
-      const statsEl = document.getElementById(`stats-${stream.id}`);
-      const statusEl = document.getElementById(`status-${stream.id}`);
-
-      statusEl.textContent = "";
-
-      if (hlsInstances[stream.id]) hlsInstances[stream.id].destroy();
-
-      if (video.canPlayType("application/vnd.apple.mpegurl")) {
-        video.src = stream.url;
-        video.addEventListener("loadedmetadata", () => {
-          video.play().catch(() => statusEl.textContent = "Autoplay blocked — press play.");
-          updateResolution(video, statsEl);
-        });
-
-      } else if (Hls.isSupported()) {
-        const hls = new Hls({ lowLatencyMode: true });
-        hlsInstances[stream.id] = hls;
-        hls.loadSource(stream.url);
-        hls.attachMedia(video);
-
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          video.play().catch(() => statusEl.textContent = "Autoplay blocked — press play.");
-        });
-
-        hls.on(Hls.Events.FRAG_LOADED, () => updateResolution(video, statsEl));
-        hls.on(Hls.Events.LEVEL_SWITCHED, () => updateResolution(video, statsEl));
-
-        hls.on(Hls.Events.ERROR, (event, data) => {
-          if (data.fatal) {
-            statusEl.textContent = "Stream error — recovering…";
-            if (data.type === Hls.ErrorTypes.NETWORK_ERROR) hls.startLoad();
-            else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) hls.recoverMediaError();
-            else {
-              statusEl.textContent = "Fatal error — reload page.";
-              hls.destroy();
-            }
-          }
-        });
-
-      } else {
-        statusEl.textContent = "HLS not supported.";
-      }
-    }
-
-    function startAll() { streams.forEach(initStream); }
-    document.getElementById("startAll").addEventListener("click", startAll);
-    startAll();
-
-  </script>
-</body>
-</html>
+      { id: "abcau",  name: "ABC News (Australia)",  
+        url: "https://abc-news-dmd-streams-1.akama
