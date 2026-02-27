@@ -122,12 +122,12 @@
 
     const streams = [
 
-      /* ---------- EUROPE ---------- */
+      /* ---------- NEWS STREAMS ---------- */
       { id: "dw", name: "DW (Germany)",
         url: "https://dwamdstream102.akamaized.net/hls/live/2015525/dwstream102/index.m3u8" },
 
       { id: "bbc", name: "BBC World News (UK)",
-        url: "https://vs-hls-pushb-apac-gcomm.live.cf.md.bbci.co.uk/x=4/i=urn:bbc:pips:service:bbc_world_news_africa/iptv_hd_abr_v1.m3u8" },
+        url: "https://cdn4.skygo.mn/live/disk1/BBC_News/HLSv3-FTA/BBC_News.m3u8" },
 
       { id: "sky", name: "Sky News International (UK)",
         url: "https://linear417-gb-hls1-prd-ak.cdn.skycdp.com/100e/Content/HLS_001_1080_30/Live/channel(skynews)/index_1080-30.m3u8" },
@@ -135,19 +135,15 @@
       { id: "bloom", name: "Bloomberg Europe",
         url: "https://www.bloomberg.com/media-manifest/streams/eu.m3u8" },
 
-
-      /* ---------- MIDDLE EAST ---------- */
       { id: "alj", name: "Al Jazeera English (Qatar)",
         url: "https://live-hls-apps-aje-v3-fa.getaj.net/AJE/index.m3u8" },
 
-      { id: "aja_ar", name: "Al Jazeera Arabic (Qatar)",
-        url: "https://live-hls-web-aja.getaj.net/AJA/index.m3u8" },
+      { id: "aja_ar", name: "Africa News (Africa)",
+        url: "https://c3c275b999764df8a2dd55ffe2996818.mediatailor.eu-west-1.amazonaws.com/v1/master/0547f18649bd788bec7b67b746e47670f558b6b2/production-LiveChannel-6576/bitok/eyJzdGlkIjoiOTU0NDAyODQtOTU0My00Yzc2LThmZjQtNDRhY2YwYmQxYTYwIiwibWt0IjoicGwiLCJjaCI6NjYwNiwicHRmIjo1fQ==/26036/africanews-en.m3u8" },
 
       { id: "jrtv", name: "Jordan Live (JRTV HD)",
         url: "https://jrtv-live.ercdn.net/jordanhd/jordanhd_1080p.m3u8" },
 
-
-      /* ---------- ASIA-PACIFIC ---------- */
       { id: "nhk", name: "NHK World Japan",
         url: "https://media-tyo.hls.nhkworld.jp/hls/w/live/master.m3u8" },
 
@@ -157,26 +153,23 @@
       { id: "tvriworld", name: "TVRI World (Indonesia)",
         url: "https://ott-balancer.tvri.go.id/live/eds/TVRIWorld/hls/TVRIWorld.m3u8" },
 
-
-      /* ---------- AUSTRALIA / US ---------- */
       { id: "abcau", name: "ABC News Australia",
         url: "https://abc-news-dmd-streams-1.akamaized.net/out/v1/701126012d044971b3fa89406a440133/index.m3u8" },
 
-      { id: "abcus", name: "ABC News Live (US)",
-        url: "https://abcnews-streams.akamaized.net/hls/live/2023565/abcnewshudson6/master_4000.m3u8" },
+      { id: "cncan", name: "City News Vancouver (Canada)",
+        url: "https://citynewsregional.akamaized.net/hls/live/1024054/Regional_Live_9/master.m3u8" },
 
+      { id: "cbnus", name: "CBS News 24/7 (US)",
+        url: " https://cbsn-us.cbsnstream.cbsnews.com/out/v1/55a8648e8f134e82a470f83d562deeca/master.m3u8" },
 
-      /* ---------- CHINA ---------- */
-      { id: "cgtndoc", name: "CGTN Documentary",
-        url: "https://english-livebkali.cgtn.com/live/doccgtn.m3u8" },
+      { id: "cgtndoc", name: "ABN China (China)",
+        url: "https://mediaserver.abnvideos.com/streams/abnchina.m3u8" },
 
+      { id: "snw", name: "Sky News Weather (Global)",
+        url: "https://distro001-gb-hls1-prd.delivery.skycdp.com/easel_cdn/ngrp:weather_loop.stream_all/playlist.m3u8" },
 
-      /* ---------- TEST STREAMS ---------- */
-      { id: "bbb", name: "Test: Big Buck Bunny",
-        url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" },
-
-      { id: "tosvod", name: "Test: Tears of Steel (VOD)",
-        url: "https://test-streams.mux.dev/tos_ismc/main.m3u8" }
+      { id: "ndtv", name: "NDTV (India)",
+        url: "https://ndtvindiaelemarchana.akamaized.net/hls/live/2003679/ndtvindia/master.m3u8" }
     ];
 
     /* ---------- UI BUILD ---------- */
